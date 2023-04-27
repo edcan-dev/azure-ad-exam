@@ -3,7 +3,8 @@ package com.okysoft.azureadexam.utils;
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
-import com.microsoft.graph.models.ObjectIdentity;
+import com.microsoft.graph.http.GraphServiceException;
+import com.microsoft.graph.models.Directory;
 import com.microsoft.graph.models.PasswordProfile;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.requests.GraphServiceClient;
@@ -11,7 +12,6 @@ import com.okysoft.azureadexam.models.XlsxUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -50,6 +50,18 @@ public class UserCreationUtil {
         graphClient = GraphServiceClient.builder().authenticationProvider( authProvider ).buildClient();
     }
 
+    public boolean existByUserName(String userName) {
+        User user;
+        try {
+            user = graphClient.users(userName).buildRequest().get();
+        } catch (Exception e) {
+            return false;
+        }
+        //assert user != null;
+        //System.out.println(user.userPrincipalName);
+        return true;
+    }
+
     public  void createUser(XlsxUser xlsxUser) {
 
         User user = new User();
@@ -58,18 +70,27 @@ public class UserCreationUtil {
         user.surname = xlsxUser.getLastName(); // Apellido
         user.givenName = xlsxUser.getFirstName(); // Nombre
         user.mailNickname = xlsxUser.getFirstName().concat(Character.toString(xlsxUser.getLastName().charAt(0))); // Nombre de Mail =  NombreA
-        user.city = xlsxUser.getCity(); // Lugar de residencia
-        user.jobTitle = xlsxUser.getJobTitle(); // Ocupación
-        user.userPrincipalName = (xlsxUser.getFirstName().concat(xlsxUser.getLastName())).toLowerCase().concat(domainName); // nombre de usuario = nombreapellido@domain.com
+        //user.city = xlsxUser.getCity(); // Lugar de residencia
+        //user.jobTitle = xlsxUser.getJobTitle(); // Ocupación
+
+        String generatedUserName = (xlsxUser.getFirstName().concat(xlsxUser.getLastName())).toLowerCase().concat(domainName);
+        user.userPrincipalName = generatedUserName; // nombre de usuario = nombreapellido@domain.com
+        xlsxUser.setUserName(generatedUserName);
+
+        // user.mail=xlsxUser.getEmail();
 
         PasswordProfile passwordProfile = new PasswordProfile(); // Políticas de password
-        passwordProfile.forceChangePasswordNextSignIn = true;
-        passwordProfile.password = "Pass_".concat(xlsxUser.getFirstName());
+        passwordProfile.forceChangePasswordNextSignIn = false;
+        passwordProfile.password = xlsxUser.getPassword();
 
         user.passwordProfile = passwordProfile;
 
-        graphClient.users().buildRequest().post(user);
+        if(! existByUserName(user.userPrincipalName)) {
+            graphClient.users().buildRequest().postAsync(user);
 
-        logger.info("===== Se ha creado el usuario: ".concat(user.userPrincipalName).concat(" ====="));
+            xlsxUser.setActiveDirectoryUserId(user.id);
+            logger.info("===== User: ".concat(xlsxUser.getUserName()).concat(" || ".concat(xlsxUser.getPassword()).concat("=====")));
+        }
+
     }
 }

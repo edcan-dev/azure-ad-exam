@@ -23,15 +23,24 @@ public class AppController {
     @Autowired
     ExcelManagementUtil excelManagementUtil;
 
-    @RequestMapping(value = "/graphMeApi",method = RequestMethod.GET)
-    public ResponseEntity<String> graphMeApi() throws MalformedURLException {
 
-        List<XlsxUser> usersFromSheet = excelManagementUtil.getUserFromSheet();
+    List<XlsxUser> usersFromSheet;
+
+    @RequestMapping(value = "/",method = RequestMethod.POST)
+    public ResponseEntity<String> readExcel() throws MalformedURLException {
+
+        usersFromSheet = excelManagementUtil.getUserFromSheet();
+
+        return new ResponseEntity<>("OK", HttpStatus.CREATED);
+    }
+    @RequestMapping(value = "/create/accounts",method = RequestMethod.POST)
+    public ResponseEntity<String> graphMeApi() throws MalformedURLException {
 
         for (XlsxUser user : usersFromSheet) {
             userCreationUtil.createUser(user);
+            System.out.println("----------------------------------------------------------------" + user.getUserName());
         }
-
+        //userCreationUtil.createUser(usersFromSheet.get(10));
         return new ResponseEntity<>("OK", HttpStatus.CREATED);
     }
 }

@@ -6,88 +6,88 @@ public class XlsxUser {
 
     private String firstName;
     private String lastName;
-    private Integer age;
-    private String profession;
-    private String grade;
-    private String maritalStatus;
-    private String city;
-    private String jobTitle;
+    private String email;
+    private String fullName;
+    private String userName;
+    private String password;
+    private String activeDirectoryUserId;
 
-    public XlsxUser() {
-
-    }
-
-    public XlsxUser(String firstName, String lastName, Integer age, String profession, String grade, String maritalStatus, String city, String jobTitle) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.age = age;
-        this.profession = profession;
-        this.grade = grade;
-        this.maritalStatus = maritalStatus;
-        this.city = city;
-        this.jobTitle = jobTitle;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-    public String getLastName() {
-        return lastName;
-    }
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-    public Integer getAge() {
-        return age;
-    }
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-    public String getProfession() {
-        return profession;
-    }
-    public void setProfession(String profession) {
-        this.profession = profession;
-    }
-    public String getGrade() {
-        return grade;
-    }
-    public void setGrade(String grade) {
-        this.grade = grade;
-    }
-    public String getMaritalStatus() {
-        return maritalStatus;
-    }
-    public void setMaritalStatus(String maritalStatus) {
-        this.maritalStatus = maritalStatus;
-    }
-    public String getCity() {
-        return city;
-    }
-    public void setCity(String city) {
-        this.city = city;
-    }
-    public String getJobTitle() {
-        return jobTitle;
-    }
-    public void setJobTitle(String jobTitle) {
-        this.jobTitle = jobTitle;
-    }
 
     @Override
     public String toString() {
         return "XlsxUser{" +
                 "firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", age=" + age +
-                ", profession='" + profession + '\'' +
-                ", grade='" + grade + '\'' +
-                ", maritalStatus='" + maritalStatus + '\'' +
-                ", city='" + city + '\'' +
-                ", jobTitle='" + jobTitle + '\'' +
+                ", email='" + email + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
                 '}';
+    }
+
+    public XlsxUser() {
+    }
+
+    public XlsxUser(String firstName, String lastName, String email, String fullName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.fullName = fullName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getActiveDirectoryUserId() {
+        return activeDirectoryUserId;
+    }
+
+    public void setActiveDirectoryUserId(String activeDirectoryUserId) {
+        this.activeDirectoryUserId = activeDirectoryUserId;
     }
 }

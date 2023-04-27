@@ -13,12 +13,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 @Component
 public class ExcelManagementUtil {
@@ -26,7 +26,7 @@ public class ExcelManagementUtil {
     private Workbook workbook;
 
     public ExcelManagementUtil() {
-        Path filePath = Path.of(System.getProperty("user.dir"),"src","main","resources","input","users.xlsx");
+        Path filePath = Path.of(System.getProperty("user.dir"),"src","main","resources","input","user_data.xlsx");
         try {
             FileInputStream file = new FileInputStream(new File(filePath.toUri()));
             workbook = new XSSFWorkbook(file);
@@ -45,16 +45,31 @@ public class ExcelManagementUtil {
         Map<Integer, List<String>> data = new HashMap<>();
         for (Row row : sheet) {
             XlsxUser user = new XlsxUser();
-            user.setFirstName(String.valueOf(row.getCell(0)));
-            user.setLastName(String.valueOf(row.getCell(1)));
-            user.setAge((int) row.getCell(2).getNumericCellValue());
-            user.setProfession(String.valueOf(row.getCell(3)));
-            user.setGrade(String.valueOf(row.getCell(4)));
-            user.setMaritalStatus(String.valueOf(row.getCell(5)));
-            user.setCity(String.valueOf(row.getCell(6)));
-            user.setJobTitle(String.valueOf(row.getCell(7)));
+            user.setFirstName(row.getCell(0).getRichStringCellValue().getString());
+            user.setLastName(row.getCell(1).getRichStringCellValue().getString());
+            user.setFullName(row.getCell(7).getRichStringCellValue().getString());
+            user.setEmail(row.getCell(5).getRichStringCellValue().getString());
 
-            //System.out.println(user.toString());
+            user.setPassword("Pass_".concat(user.getFirstName()).concat("_").concat(user.getLastName()));
+
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                byte[] hash = digest.digest(user.getPassword().getBytes(StandardCharsets.UTF_8));
+
+                StringBuilder hexString = new StringBuilder(2 * hash.length);
+                for (byte b : hash) {
+                    String hex = Integer.toHexString(0xff & b);
+                    if (hex.length() == 1) {
+                        hexString.append('0');
+                    }
+                    hexString.append(hex);
+                }
+                String pass = user.getLastName().substring(0, 3) + user.getFirstName().substring(0, 3) + "_" + hexString.substring(0,6);
+                user.setPassword(String.valueOf(pass));
+
+            } catch (NoSuchAlgorithmException e) { }
+
+            System.out.println(user.getPassword());
 
             xlsxUsersList.add(user);
         }
