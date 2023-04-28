@@ -7,6 +7,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -22,6 +24,8 @@ import java.util.*;
 
 @Component
 public class ExcelManagementUtil {
+
+    Logger logger = LoggerFactory.getLogger(ExcelManagementUtil.class);
 
     private Workbook workbook;
 
@@ -42,36 +46,40 @@ public class ExcelManagementUtil {
         List<XlsxUser> xlsxUsersList = new ArrayList<>();
         Sheet sheet = workbook.getSheetAt(0);
 
-        Map<Integer, List<String>> data = new HashMap<>();
         for (Row row : sheet) {
-            XlsxUser user = new XlsxUser();
-            user.setFirstName(row.getCell(0).getRichStringCellValue().getString());
-            user.setLastName(row.getCell(1).getRichStringCellValue().getString());
-            user.setFullName(row.getCell(7).getRichStringCellValue().getString());
-            user.setEmail(row.getCell(5).getRichStringCellValue().getString());
-
-            user.setPassword("Pass_".concat(user.getFirstName()).concat("_").concat(user.getLastName()));
 
             try {
-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                byte[] hash = digest.digest(user.getPassword().getBytes(StandardCharsets.UTF_8));
 
-                StringBuilder hexString = new StringBuilder(2 * hash.length);
-                for (byte b : hash) {
-                    String hex = Integer.toHexString(0xff & b);
-                    if (hex.length() == 1) {
-                        hexString.append('0');
+                XlsxUser user = new XlsxUser();
+                user.setFirstName(row.getCell(0).getRichStringCellValue().getString());
+                user.setLastName(row.getCell(1).getRichStringCellValue().getString());
+                user.setFullName(row.getCell(7).getRichStringCellValue().getString());
+                user.setEmail(row.getCell(5).getRichStringCellValue().getString());
+
+                user.setPassword("Pass_".concat(user.getFirstName()).concat("_").concat(user.getLastName()));
+
+                try {
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    byte[] hash = digest.digest(user.getPassword().getBytes(StandardCharsets.UTF_8));
+
+                    StringBuilder hexString = new StringBuilder(2 * hash.length);
+                    for (byte b : hash) {
+                        String hex = Integer.toHexString(0xff & b);
+                        if (hex.length() == 1) { hexString.append('0');
                     }
                     hexString.append(hex);
                 }
                 String pass = user.getLastName().substring(0, 3) + user.getFirstName().substring(0, 3) + "_" + hexString.substring(0,6);
                 user.setPassword(String.valueOf(pass));
+                } catch (NoSuchAlgorithmException e) { }
 
-            } catch (NoSuchAlgorithmException e) { }
+                logger.info("===== User: ".concat(user.getFirstName()).concat(" || ".concat(user.getEmail()).concat("=====")));
 
-            System.out.println(user.getPassword());
+                xlsxUsersList.add(user);
 
-            xlsxUsersList.add(user);
+            } catch (NullPointerException e) {
+                break;
+            }
         }
         return xlsxUsersList;
     }
